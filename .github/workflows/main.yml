@@ -2,11 +2,11 @@ name: dicoding sistem ML pipeline CI
 
 on: 
   push:
-    branches:
-      - main
+    branches: ["main"]
+    paths:
+      - 'workflow-ci/mlproject'
   pull_request:
-    branches:
-      - main
+    branches: ["main"]
 jobs:
   development-checks:
     runs-on: ubuntu-latest
