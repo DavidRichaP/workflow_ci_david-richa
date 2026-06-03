@@ -3,8 +3,6 @@ name: dicoding sistem ML pipeline CI
 on: 
   push:
     branches: ["main"]
-    paths:
-      - 'workflow-ci/mlproject'
   pull_request:
     branches: ["main"]
 jobs:
@@ -20,7 +18,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with: 
           activate-environment: mlflow-env
-          environment-file: conda.yaml
+          environment-file: workflow-ci/mlproject/conda.yaml
           auto-activate-base: false
 
       - name: run modelling script
