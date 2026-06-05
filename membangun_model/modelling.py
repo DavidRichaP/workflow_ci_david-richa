@@ -43,6 +43,8 @@ def hyperparam_tuning_autolog(training_source_path, target_col):
 
             model.score(X_test, y_test)
 
+            print(f"Finished run with params: {params}")
+
 
 if __name__ == "__main__":
     results = hyperparam_tuning_autolog("winequality-red_preprocessed.csv",
