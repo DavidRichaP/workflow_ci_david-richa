@@ -9,7 +9,7 @@ cd monitoring dan logging
 # jalankan untuk menyalakan server local
 mlflow models serve -m "monitored_model_local" -p 5001 --env-manager=local
 
-# 3. Start Prometheus
+# 3. Start Prometheus (port 9090 untuk keluar data)
 docker run -d --name=prometheus -p 9090:9090 -v $(pwd)/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
 
 # 4. Start Grafana

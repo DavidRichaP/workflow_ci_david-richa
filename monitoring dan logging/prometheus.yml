@@ -6,4 +6,4 @@ scrape_configs:
     static_configs:
       # Use 'host.docker.internal:8080' (Method 1) or 'host.docker.internal:8000' (Method 2) 
       # so the Docker container can talk to your local machine apps.
-      - targets: ['host.docker.internal:8080']
+      - targets: ['host.docker.internal:8000']
