@@ -62,7 +62,7 @@ class MonitoredWrapper(mlflow.pyfunc.PythonModel):
             # 1. NEW METRIC: Track input feature (Data Drift Proxy)
             # Grabs the last row of the 'alcohol' column from the incoming DataFrame
             if hasattr(model_input, 'columns') and 'alcohol' in model_input.columns:
-                self.alcohol_gauge.set(float(model_input['alcohol'].iloc[-1]))
+                self.alcohol_gauge.set(float(model_input['quality'].iloc[-1]))
 
             # Your original prediction logic
             predictions = self.model.predict(model_input)
