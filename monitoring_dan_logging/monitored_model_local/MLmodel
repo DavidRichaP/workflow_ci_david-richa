@@ -10,6 +10,6 @@ flavors:
     python_version: 3.12.7
     streamable: false
 mlflow_version: 2.19.0
-model_size_bytes: 4645
-model_uuid: 8a1e09ed78ae49f39e3544a71c11d732
-utc_time_created: '2026-06-06 13:32:36.816602'
+model_size_bytes: 4635
+model_uuid: 2339cad524154f05b7b29be78b705d8a
+utc_time_created: '2026-06-06 13:49:07.118222'
