@@ -7,7 +7,7 @@ python prometheus_exporter.py
 cd monitoring dan logging
 
 # jalankan untuk menyalakan server local
-mlflow models serve -m "monitored_model_local" -p 5001 --env-manager=local
+mlflow models serve -m "monitored_model_local" -p 5001 --env-manager=local --host 0.0.0.0
 
 # arahkan terminal ke folder parent yang menyimpan prometheus.yml
 cd monitoring dan logging
