@@ -31,6 +31,8 @@ jobs:
         shell: bash -el {0}
         run: |
           cd workflow-ci/mlproject
+          rm -rf mlruns .mlflow mlflow.db
+          export MLFLOW_TRACKING_URI="file://${PWD}/mlruns"
           mlflow run . --env-manager=conda -P df_path=gender_classif_v7_preprocessed.csv
 
       - name: save mlruns to repo
