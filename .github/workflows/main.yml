@@ -86,7 +86,7 @@ jobs:
           
           mlflow models build-docker \
             -m "$MODEL_URI" \
-            -n "${{ secrets.DOCKERHUB_USERNAME }}/dicoding-ml-pipeline:latest"
+            -n "${{ secrets.DOCKERHUB_USERNAME }}/dicoding-ml-pipeline:latest" \
             --env-manager=virtualenv
 
       # 9. Mengirimkan image yang berhasil dibuat ke Docker Hub repositori remote
