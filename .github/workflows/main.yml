@@ -84,6 +84,11 @@ jobs:
           
           echo "Building docker image using model from: $MODEL_URI"
           
+          # CRITICAL FIX: Patch the get-pip URL inside the runner's mlflow package
+          MLFLOW_DOCKER_UTILS=$(python -c "import mlflow.models.docker_utils as u; print(u.__file__)")
+          echo "Patching MLflow template source at: $MLFLOW_DOCKER_UTILS"
+          sed -i 's|https://bootstrap.pypa.io/get-pip.py|https://bootstrap.pypa.io/pip/3.9/get-pip.py|g' "$MLFLOW_DOCKER_UTILS"
+
           mlflow models build-docker \
             -m "$MODEL_URI" \
             -n "${{ secrets.DOCKERHUB_USERNAME }}/dicoding-ml-pipeline:latest" \
