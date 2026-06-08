@@ -91,6 +91,19 @@ jobs:
             -n "${{ secrets.DOCKERHUB_USERNAME }}/dicoding-ml-pipeline:latest" \
             --env-manager=virtualenv
 
+          echo "Patching the generated Dockerfile to use a native Python 3.12 engine..."
+          
+          # Swap the operating system base layer straight to official Python 3.12
+          sed -i 's|FROM ubuntu:20.04|FROM python:3.12-slim|g' output_docker/Dockerfile
+          
+          # Completely delete the lines from 'RUN apt install...' up to 'RUN pip install virtualenv'
+          # This cleanly wipes out the broken Python 3.9 download block entirely.
+          sed -i '/RUN apt install -y python3.9/,/RUN pip install virtualenv/d' output_docker/Dockerfile
+
+          # Compile the image directly using standard Docker CLI commands
+          cd output_docker
+          docker build -t "${{ secrets.DOCKERHUB_USERNAME }}/dicoding-ml-pipeline:latest" .
+
       # 9. Mengirimkan image yang berhasil dibuat ke Docker Hub repositori remote
       - name: Push Image to Docker Hub
         run: |
