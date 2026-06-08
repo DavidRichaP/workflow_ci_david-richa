@@ -1,0 +1,15 @@
+artifact_uri: file:///home/runner/work/membangun-sistem-ML/membangun-sistem-ML/workflow-ci/mlproject/mlruns/0/a5cf2cd0d4e84ca2af7a5cd6131efe50/artifacts
+end_time: 1780923403438
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: a5cf2cd0d4e84ca2af7a5cd6131efe50
+run_name: vaunted-koi-621
+run_uuid: a5cf2cd0d4e84ca2af7a5cd6131efe50
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1780923322021
+status: 3
+tags: []
+user_id: runner
