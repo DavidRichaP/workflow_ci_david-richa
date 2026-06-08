@@ -29,11 +29,18 @@ jobs:
 
       - name: run MLflow Project
         shell: bash -el {0}
+        # Correctly structured step environment variable
+        env: 
+          MLFLOW_ALLOW_FILE_STORE: "true"
         run: |
           cd workflow-ci/mlproject
+          
+          # Clean out past iterations cleanly
           rm -rf mlruns .mlflow mlflow.db
+          
+          # Execute the project step 
           mlflow run . --env-manager=conda -P df_path="gender_classif_v7_preprocessed.csv"
-
+      
       - name: save mlruns to repo
         run: |
           git config --global user.name "${{ secrets.username }}"

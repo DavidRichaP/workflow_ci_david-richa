@@ -32,16 +32,15 @@ def hyperparam_tuning_autolog(training_source_path, target_col, n_est, max_depth
         'random_state': random_state
     }
 
+    local_mlruns_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "mlruns"))
+    mlflow.set_tracking_uri(f"file://{local_mlruns_path}")
+    mlflow.set_experiment(f"{target_col}_Autolog")
+
     # Set the experiment name
     mlflow.sklearn.autolog()
 
-    local_mlruns_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "mlruns"))
-    mlflow.set_tracking_uri(f"file://{local_mlruns_path}")
-
-    mlflow.set_experiment(f"{target_col}_Autolog")
-
     for params in ParameterGrid(param_grid):
-        with mlflow.start_run(run_name=f"RF_est_{params['n_estimators']}_depth_{params['max_depth']}", nested=True):
+        with mlflow.start_run(run_name=f"RF_est_{params['n_estimators']}_depth_{params['max_depth']}"):
             model = RandomForestClassifier(**params)
 
             model.fit(X_train, y_train)
