@@ -73,61 +73,60 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # 8. Hasilkan Dockerfile, Bersihkan Baris Python Secara Total, Jalankan Docker CLI
-      - name: Build Docker Image via Patched Ubuntu 20.04 Dockerfile
+      # 8. Hasilkan Artifact Model, Pasang Tools Kompilasi, dan Bangun via Docker CLI
+      - name: Build Custom Production Docker Image
         shell: bash -el {0}
         run: |
           cd workflow-ci/mlproject
           
-          # Mencari run ID eksperimen terbaru secara dinamis
           LATEST_RUN=$(ls -t mlruns/0 | grep -v "meta.yaml" | head -n 1)
           MODEL_URI="runs:/$LATEST_RUN/model"
-          
-          echo "Generating Dockerfile structure from model tracking URI: $MODEL_URI"
           
           mlflow models generate-dockerfile \
             -m "$MODEL_URI" \
             -d "output_docker" \
             --env-manager=virtualenv
 
-          echo "Overwriting MLflow's broken template with your custom Python 3.12.7-slim Dockerfile..."
+          # DEBUG: Intip isi requirements.txt bawaan model agar Anda tahu persis apa saja yang akan diinstall pip
+          echo "=== MODEL REQUIREMENTS.TXT DETECTED ==="
+          cat output_docker/model_dir/requirements.txt
+          echo "======================================="
 
-          # 3. Buat file Dockerfile baru milik Anda secara langsung, menimpa file bawaan MLflow yang rusak
-          cat << 'EOF' > output_docker/Dockerfile
-          
+          echo "Overwriting MLflow's template with custom Python 3.12.7-slim Dockerfile..."
+
+          cat <<-'EOF' > output_docker/Dockerfile
           # Build an image that can serve mlflow models.
           FROM python:3.12.7-slim
 
-          RUN apt-get -y update && apt-get install -y --no-install-recommends nginx
+          # FIX 1: Pasang gcc dan build-essential karena python-slim tidak memiliki compiler C/C++ bawaan
+          RUN apt-get -y update && apt-get install -y --no-install-recommends \
+              nginx \
+              build-essential \
+              gcc \
+              && rm -rf /var/lib/apt/lists/*
 
           WORKDIR /opt/mlflow
 
-          # Install MLflow & dependencies pendukung web server gunicorn
-          RUN pip install mlflow==2.19.0 gevent gunicorn
+          RUN pip install --no-cache-dir mlflow==2.19.0 gevent gunicorn
 
-          # Copy model yang sudah didownload oleh perintah generate-dockerfile di atas
           COPY model_dir/ /opt/ml/model
 
-          # Install dependensi model (pandas, scikit-learn, dll) menggunakan python environment lokal container
+          # FIX 2: Jalankan instalasi dependensi model. Jika gagal, error asli pip akan dicetak jelas di console log.
           RUN python -c "from mlflow.models import container as C; C._install_pyfunc_deps('/opt/ml/model', install_mlflow=False, enable_mlserver=False, env_manager='local');"
 
           ENV MLFLOW_DISABLE_ENV_CREATION=True
           ENV ENABLE_MLSERVER=False
           ENV GUNICORN_CMD_ARGS="--timeout 60 -k gevent"
 
-          # Granting read/write access and conditional execution authority to all child directories
           RUN chmod -R o+rwX /opt/mlflow/ /opt/ml/model
-
-          # Clean up apt cache to reduce image size
-          RUN rm -rf /var/lib/apt/lists/*
 
           ENTRYPOINT ["python", "-c", "from mlflow.models import container as C; C._serve('local')"]
           EOF
 
           echo "Compiling your custom high-performance production image..."
-
-          echo "Compiling the Ubuntu 20.04 image directly using standard Docker CLI..."
           cd output_docker
           docker build -t "${{ secrets.DOCKERHUB_USERNAME }}/dicoding-ml-pipeline:latest" .
+          
       # 9. Mengirimkan image yang berhasil dibuat ke Docker Hub repositori remote
       - name: Push Image to Docker Hub
         run: |
