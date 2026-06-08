@@ -47,7 +47,7 @@ def hyperparam_tuning_autolog(training_source_path, target_col, n_est, max_depth
     mlflow.sklearn.autolog()
 
     for params in ParameterGrid(param_grid):
-        with mlflow.start_run(run_name=f"RF_est_{params['n_estimators']}_depth_{params['max_depth']}"):
+        with mlflow.start_run(run_name=f"RF_est_{params['n_estimators']}_depth_{params['max_depth']}", nested=True):
             model = RandomForestClassifier(**params)
 
             model.fit(X_train, y_train)
