@@ -80,7 +80,7 @@ jobs:
           
           # Mencari run ID eksperimen terbaru secara dinamis
           LATEST_RUN=$(ls -t mlruns/0 | grep -v "meta.yaml" | head -n 1)
-          MODEL_URI="mlruns/0/$LATEST_RUN/artifacts/model"
+          MODEL_URI="runs:/$LATEST_RUN/model"
           
           echo "Building docker image using model from: $MODEL_URI"
           
