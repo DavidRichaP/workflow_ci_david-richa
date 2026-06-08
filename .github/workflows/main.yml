@@ -82,13 +82,11 @@ jobs:
           LATEST_RUN=$(ls -t mlruns/0 | grep -v "meta.yaml" | head -n 1)
           MODEL_URI="runs:/$LATEST_RUN/model"
           
-          echo "Building docker image using model from: $MODEL_URI"
+          echo "generating docker image file using model from: $MODEL_URI"
           
-          export MLFLOW_DOCKER_BASE_IMAGE="python:3.12-slim"
-
           mlflow models generate-dockerfile \
             -m "$MODEL_URI" \
-            -n "${{ secrets.DOCKERHUB_USERNAME }}/dicoding-ml-pipeline:latest" \
+            -d "output_docker" \
             --env-manager=virtualenv
 
           echo "Patching the generated Dockerfile to use a native Python 3.12 engine..."
