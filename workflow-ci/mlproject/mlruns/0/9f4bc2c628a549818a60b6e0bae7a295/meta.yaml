@@ -1,0 +1,15 @@
+artifact_uri: file:///home/runner/work/membangun-sistem-ML/membangun-sistem-ML/workflow-ci/mlproject/mlruns/0/9f4bc2c628a549818a60b6e0bae7a295/artifacts
+end_time: 1780923799309
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 9f4bc2c628a549818a60b6e0bae7a295
+run_name: RF_est_50_depth_10
+run_uuid: 9f4bc2c628a549818a60b6e0bae7a295
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1780923796010
+status: 3
+tags: []
+user_id: runner
