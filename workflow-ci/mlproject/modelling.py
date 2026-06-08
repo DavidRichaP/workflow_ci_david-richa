@@ -36,21 +36,21 @@ def hyperparam_tuning_autolog(training_source_path, target_col, n_est, max_depth
     else:
         print(f"Using environment tracking URI: {os.environ.get('MLFLOW_TRACKING_URI')}")
 
-    # 2. Set the experiment name
-    mlflow.set_experiment(f"{target_col}_Autolog")
-
     # 3. Enable autologging AFTER setting the URI and experiment context
     mlflow.sklearn.autolog()
 
-    for params in ParameterGrid(param_grid):
-        with mlflow.start_run(run_name=f"RF_est_{params['n_estimators']}_depth_{params['max_depth']}", nested=True):
-            model = RandomForestClassifier(**params)
+    with mlflow.start_run(run_name="Hyperparameter_Tuning_Parent") as parent_run:
+        print(f"Started parent run context with ID: {parent_run.info.run_id}")
 
-            model.fit(X_train, y_train)
+        for params in ParameterGrid(param_grid):
+            with mlflow.start_run(run_name=f"RF_est_{params['n_estimators']}_depth_{params['max_depth']}", nested=True):
+                model = RandomForestClassifier(**params)
 
-            model.score(X_test, y_test)
+                model.fit(X_train, y_train)
 
-            print(f"Finished run with params: {params}")
+                model.score(X_test, y_test)
+
+                print(f"Finished run with params: {params}")
 
 
 if __name__ == "__main__":
