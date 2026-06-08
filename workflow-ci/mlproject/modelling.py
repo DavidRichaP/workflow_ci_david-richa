@@ -41,10 +41,6 @@ def hyperparam_tuning_autolog(training_source_path, target_col, n_est, max_depth
 
     # 3. Enable autologging AFTER setting the URI and experiment context
     mlflow.sklearn.autolog()
-    mlflow.set_experiment(f"{target_col}_Autolog")
-
-    # Set the experiment name
-    mlflow.sklearn.autolog()
 
     for params in ParameterGrid(param_grid):
         with mlflow.start_run(run_name=f"RF_est_{params['n_estimators']}_depth_{params['max_depth']}", nested=True):
