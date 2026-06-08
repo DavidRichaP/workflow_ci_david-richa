@@ -8,5 +8,5 @@ schema: '{"mlflow_colspec": [{"type": "double", "name": "forehead_width_cm", "re
   "double", "name": "lips_thin", "required": true}, {"type": "double", "name": "distance_nose_to_lip_long",
   "required": true}]}'
 source: '{"tags": {"mlflow.user": "runner", "mlflow.source.name": "modelling.py",
-  "mlflow.source.type": "LOCAL", "mlflow.source.git.commit": "46117434b30e5f9ba9c084a8cf93cd657b49bfd4"}}'
+  "mlflow.source.type": "LOCAL", "mlflow.source.git.commit": "159358cbd98c853c4ef5d93c2a97572899c812ac"}}'
 source_type: code
