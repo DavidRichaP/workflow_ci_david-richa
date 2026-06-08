@@ -72,13 +72,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Patch MLflow Source for Python 3.9 get-pip compatibility
-        run: |
-          # This finds where mlflow's docker_utils lives in your environment and replaces the broken get-pip URL
-          FIND_FILE=$(python -c "import mlflow.models.docker_utils as u; print(u.__file__)")
-          sudo sed -i 's|https://bootstrap.pypa.io/get-pip.py|https://bootstrap.pypa.io/pip/3.9/get-pip.py|g' "$FIND_FILE"
-
-      # 8. Membangun Docker Image secara otomatis via utilitas MLflow Models
+        # 8. Membangun Docker Image secara otomatis via utilitas MLflow Models
       - name: Build Docker Image via MLflow
         shell: bash -el {0}
         run: |
@@ -93,6 +87,7 @@ jobs:
           mlflow models build-docker \
             -m "$MODEL_URI" \
             -n "${{ secrets.DOCKERHUB_USERNAME }}/dicoding-ml-pipeline:latest"
+            --env-manager=virtualenv
 
       # 9. Mengirimkan image yang berhasil dibuat ke Docker Hub repositori remote
       - name: Push Image to Docker Hub
