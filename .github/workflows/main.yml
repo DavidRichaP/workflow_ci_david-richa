@@ -86,7 +86,7 @@ jobs:
           
           export MLFLOW_DOCKER_BASE_IMAGE="python:3.12-slim"
 
-          mlflow models build-docker \
+          mlflow models generate-dockerfile \
             -m "$MODEL_URI" \
             -n "${{ secrets.DOCKERHUB_USERNAME }}/dicoding-ml-pipeline:latest" \
             --env-manager=virtualenv
