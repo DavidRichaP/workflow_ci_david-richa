@@ -1,0 +1,15 @@
+artifact_uri: file:///home/runner/work/membangun-sistem-ML/membangun-sistem-ML/workflow-ci/mlproject/mlruns/0/f6769cd87ad84cb7925fcff3b385f758/artifacts
+end_time: 1780925939793
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: f6769cd87ad84cb7925fcff3b385f758
+run_name: unique-ant-805
+run_uuid: f6769cd87ad84cb7925fcff3b385f758
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1780925863675
+status: 3
+tags: []
+user_id: runner
