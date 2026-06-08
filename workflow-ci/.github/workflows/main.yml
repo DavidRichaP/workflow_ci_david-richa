@@ -31,7 +31,7 @@ jobs:
         shell: bash -el {0}
         run: |
           cd workflow-ci/mlproject
-          mlflow run . --env-manager=conda
+          mlflow run . --env-manager=conda -P df_path=gender_classif_v7_preprocessed.csv
 
       - name: save mlruns to repo
         run: |
