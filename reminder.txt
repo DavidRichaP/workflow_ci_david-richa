@@ -1,0 +1,7 @@
+automatic garbanzo container identifiers
+
+prometheus:
+ecd7f1c78156552779ed6908c0c91de313bc47054b04e721343dd4dc86a02368
+
+grafana:
+91e8e94c8efe5ac51a3327a7cce767ae862836341d2123a31421c4811a0f3fa8
