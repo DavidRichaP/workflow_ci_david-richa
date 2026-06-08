@@ -72,8 +72,8 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-        # 8. Membangun Docker Image secara otomatis via utilitas MLflow Models
-      - name: Build Docker Image via MLflow
+      # 8. Hasilkan Dockerfile, Bersihkan Baris Python Secara Total, Jalankan Docker CLI
+      - name: Build Docker Image via Patched Ubuntu 20.04 Dockerfile
         shell: bash -el {0}
         run: |
           cd workflow-ci/mlproject
@@ -82,30 +82,33 @@ jobs:
           LATEST_RUN=$(ls -t mlruns/0 | grep -v "meta.yaml" | head -n 1)
           MODEL_URI="runs:/$LATEST_RUN/model"
           
-          echo "generating docker image file using model from: $MODEL_URI"
+          echo "Generating Dockerfile structure from model tracking URI: $MODEL_URI"
           
           mlflow models generate-dockerfile \
             -m "$MODEL_URI" \
             -d "output_docker" \
             --env-manager=virtualenv
 
-          echo "Patching the generated Dockerfile to use native Ubuntu + Python 3.12..."
+          echo "Modifying Dockerfile to natively support Python 3.12 on Ubuntu 20.04..."
           
-          # 1. Pastikan OS dasar menggunakan Ubuntu modern (misal: 22.04 LTS)
-          sed -i 's|FROM ubuntu:20.04|FROM ubuntu:22.04|g' output_docker/Dockerfile
+          # 1. Pastikan OS tetap Ubuntu 20.04 asli sesuai keinginan Anda
+          sed -i 's|FROM ubuntu:20.04|FROM ubuntu:20.04|g' output_docker/Dockerfile
           
-          # 2. Sisipkan perintah 'apt-get update' agar index package Ubuntu segar
+          # 2. Sisipkan perintah 'apt-get update' awal agar index package Ubuntu segar
           sed -i 's|RUN apt-get install|RUN apt-get update \&\& apt-get install|g' output_docker/Dockerfile
           
-          # 3. Ubah total baris instalasi Python 3.9 yang rusak menjadi instalasi Python 3.12 native bawaan Ubuntu
-          # Kita mengganti seluruh blok 'RUN apt install -y python3.9...' menjadi instalasi python3.12 & python3-pip
-          sed -i 's|apt install -y python3.9 python3.9-distutils.*&& python /tmp/get-pip.py|apt-get install -y python3.12 python3.12-dev python3-pip python3.12-venv \&\& ln -s -f /usr/bin/python3.12 /usr/bin/python|g' output_docker/Dockerfile
+          # 3. FIX MUTLAK: Hapus baris 16, 17, 18, dan 19 secara paksa (Blok python3.9 + get-pip yang rusak)
+          sed -i '16,19d' output_docker/Dockerfile
+          
+          # 4. Sisipkan baris instalasi Python 3.12 Deadsnakes PPA yang benar tepat di baris ke-16
+          sed -i '16i RUN apt-get install -y software-properties-common \&\& add-apt-repository -y ppa:deadsnakes/ppa \&\& apt-get update \&\& apt-get install -y python3.12 python3.12-dev python3.12-distutils python3-pip python3.12-venv \&\& ln -s -f /usr/bin/python3.12 /usr/bin/python' output_docker/Dockerfile
 
-          echo "Compiling the Ubuntu image directly using standard Docker CLI..."
-          # Compile the image directly using standard Docker CLI commands
+          echo "Reviewing the patched Dockerfile structure:"
+          cat output_docker/Dockerfile | head -n 25
+
+          echo "Compiling the Ubuntu 20.04 image directly using standard Docker CLI..."
           cd output_docker
           docker build -t "${{ secrets.DOCKERHUB_USERNAME }}/dicoding-ml-pipeline:latest" .
-
       # 9. Mengirimkan image yang berhasil dibuat ke Docker Hub repositori remote
       - name: Push Image to Docker Hub
         run: |
