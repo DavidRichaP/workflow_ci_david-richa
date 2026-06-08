@@ -89,15 +89,19 @@ jobs:
             -d "output_docker" \
             --env-manager=virtualenv
 
-          echo "Patching the generated Dockerfile to use a native Python 3.12 engine..."
+          echo "Patching the generated Dockerfile to use native Ubuntu + Python 3.12..."
           
-          # Swap the operating system base layer straight to official Python 3.12
-          sed -i 's|FROM ubuntu:20.04|FROM python:3.12-slim|g' output_docker/Dockerfile
+          # 1. Pastikan OS dasar menggunakan Ubuntu modern (misal: 22.04 LTS)
+          sed -i 's|FROM ubuntu:20.04|FROM ubuntu:22.04|g' output_docker/Dockerfile
           
-          # Completely delete the lines from 'RUN apt install...' up to 'RUN pip install virtualenv'
-          # This cleanly wipes out the broken Python 3.9 download block entirely.
-          sed -i '/RUN apt install -y python3.9/,/RUN pip install virtualenv/d' output_docker/Dockerfile
+          # 2. Sisipkan perintah 'apt-get update' agar index package Ubuntu segar
+          sed -i 's|RUN apt-get install|RUN apt-get update \&\& apt-get install|g' output_docker/Dockerfile
+          
+          # 3. Ubah total baris instalasi Python 3.9 yang rusak menjadi instalasi Python 3.12 native bawaan Ubuntu
+          # Kita mengganti seluruh blok 'RUN apt install -y python3.9...' menjadi instalasi python3.12 & python3-pip
+          sed -i 's|apt install -y python3.9 python3.9-distutils.*&& python /tmp/get-pip.py|apt-get install -y python3.12 python3.12-dev python3-pip python3.12-venv \&\& ln -s -f /usr/bin/python3.12 /usr/bin/python|g' output_docker/Dockerfile
 
+          echo "Compiling the Ubuntu image directly using standard Docker CLI..."
           # Compile the image directly using standard Docker CLI commands
           cd output_docker
           docker build -t "${{ secrets.DOCKERHUB_USERNAME }}/dicoding-ml-pipeline:latest" .
