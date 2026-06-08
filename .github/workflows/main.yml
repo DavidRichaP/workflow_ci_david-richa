@@ -89,22 +89,41 @@ jobs:
             -d "output_docker" \
             --env-manager=virtualenv
 
-          echo "Modifying Dockerfile to natively support Python 3.12 on Ubuntu 20.04..."
-          
-          # 1. Pastikan OS tetap Ubuntu 20.04 asli sesuai keinginan Anda
-          sed -i 's|FROM ubuntu:20.04|FROM ubuntu:20.04|g' output_docker/Dockerfile
-          
-          # 2. Sisipkan perintah 'apt-get update' awal agar index package Ubuntu segar
-          sed -i 's|RUN apt-get install|RUN apt-get update \&\& apt-get install|g' output_docker/Dockerfile
-          
-          # 3. FIX MUTLAK: Hapus baris 16, 17, 18, dan 19 secara paksa (Blok python3.9 + get-pip yang rusak)
-          sed -i '16,19d' output_docker/Dockerfile
-          
-          # 4. Sisipkan baris instalasi Python 3.12 Deadsnakes PPA yang benar tepat di baris ke-16
-          sed -i '16i RUN apt-get install -y software-properties-common \&\& add-apt-repository -y ppa:deadsnakes/ppa \&\& apt-get update \&\& apt-get install -y python3.12 python3.12-dev python3.12-distutils python3-pip python3.12-venv \&\& ln -s -f /usr/bin/python3.12 /usr/bin/python' output_docker/Dockerfile
+          echo "Overwriting MLflow's broken template with your custom Python 3.12.7-slim Dockerfile..."
 
-          echo "Reviewing the patched Dockerfile structure:"
-          cat output_docker/Dockerfile | head -n 25
+          # 3. Buat file Dockerfile baru milik Anda secara langsung, menimpa file bawaan MLflow yang rusak
+          cat << 'EOF' > output_docker/Dockerfile
+          
+          # Build an image that can serve mlflow models.
+          FROM python:3.12.7-slim
+
+          RUN apt-get -y update && apt-get install -y --no-install-recommends nginx
+
+          WORKDIR /opt/mlflow
+
+          # Install MLflow & dependencies pendukung web server gunicorn
+          RUN pip install mlflow==2.19.0 gevent gunicorn
+
+          # Copy model yang sudah didownload oleh perintah generate-dockerfile di atas
+          COPY model_dir/ /opt/ml/model
+
+          # Install dependensi model (pandas, scikit-learn, dll) menggunakan python environment lokal container
+          RUN python -c "from mlflow.models import container as C; C._install_pyfunc_deps('/opt/ml/model', install_mlflow=False, enable_mlserver=False, env_manager='local');"
+
+          ENV MLFLOW_DISABLE_ENV_CREATION=True
+          ENV ENABLE_MLSERVER=False
+          ENV GUNICORN_CMD_ARGS="--timeout 60 -k gevent"
+
+          # Granting read/write access and conditional execution authority to all child directories
+          RUN chmod -R o+rwX /opt/mlflow/ /opt/ml/model
+
+          # Clean up apt cache to reduce image size
+          RUN rm -rf /var/lib/apt/lists/*
+
+          ENTRYPOINT ["python", "-c", "from mlflow.models import container as C; C._serve('local')"]
+          EOF
+
+          echo "Compiling your custom high-performance production image..."
 
           echo "Compiling the Ubuntu 20.04 image directly using standard Docker CLI..."
           cd output_docker
